@@ -3,7 +3,11 @@ from math import tan
 from math import atan
 from math import floor
 
-#p2 must be the vertex between 1 and 3
+'''p2 must be the vertex between 1 and 3
+The algorithm assumes the orientation
+    of the drone is toward the first point
+    with respect to the second: the shorter dimension of the
+    camera is parallel with the vector from rectangle vertex 1 to 2.'''
 class latlon:
     n=float()
     w=float()
@@ -46,7 +50,7 @@ def mag(p):
 def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     camParam={'pi':{'ssizem':2.74, 'ssizep':3.76, 'flen':3.6},
               'canon':{'ssizem':5.7, 'ssizep':7.6, 'flen':5.2}}
-    v21=sub(p2,p1)
+    v21=sub(p1,p2)
     v23=sub(p3,p2)
     mainvectorangle=asin(v21.n/mag(v21))
     if mainvectorangle>0:
@@ -58,27 +62,31 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     viewangp=2*atan(camParam[cam]['ssizep']/(2*camParam[cam]['flen']))
     innerspacing=alt*tan(viewangm)*(1-imgOvr)/mdeg
     outerspacing=alt*tan(viewangp)*(1-imgOvr)/mdeg
-    innerstep=smult(sdiv(sub(p1,p2), mag(sub(p1,p2))),innerspacing)
-    outerstep=smult(sdiv(sub(p3,p2), mag(sub(p3,p2))),outerspacing)
-    innerlimit=floor(mag(sub(p2,p1))/mag(innerstep))
-    outerlimit=floor(mag(sub(p3,p1))/mag(outerstep))
+    innerstep=smult(sdiv(v21, mag(v21)),innerspacing)
+    outerstep=smult(sdiv(v23, mag(v23)),outerspacing)
+    innerlimit=floor(mag(v21)/mag(innerstep))
+    outerlimit=floor(mag(v23)/mag(outerstep))
 
     position=add(add(p2,sdiv(outerstep,2)),sdiv(innerstep,2))
     picNum=0
-    print (position.n, position.w, picNum)
+    #print (position.n, position.w)
+    print (str(position.n)+','+str(position.w))
     for i in range(0,int(outerlimit)):
         picNum+=1
         for k in range(0,int(innerlimit)):
             if i%2==0:
                 position=add(position,innerstep)
-                print (position.n, position.w, picNum)
+                print (str(position.n)+','+str(position.w))
             else:
                 position=sub(position,innerstep)
-                print (position.n, position.w, picNum)
+                print (str(position.n)+','+str(position.w))
             picNum+=1
         if i!= int(outerlimit-1):
             position=add(position,outerstep)
-            print (position.n, position.w, picNum)
-    print (position.n, position.w, picNum, outerlimit, innerlimit)
+            print (str(position.n)+','+str(position.w))
+    print (str(position.n)+','+str(position.w), picNum)
 
-rectMission(p1,p2,p3,20, 'pi')
+
+#rectMission(p6,p5,p4,20, 'pi')
+rectMission(p4,p5,p6,20, 'pi')
+#rectMission(p1,p2,p3,20, 'pi')
