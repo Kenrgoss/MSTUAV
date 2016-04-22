@@ -2,12 +2,17 @@ from math import asin
 from math import tan
 from math import atan
 from math import floor
+from math import pi
 
 '''p2 must be the vertex between 1 and 3
 The algorithm assumes the orientation
     of the drone is toward the first point
-    with respect to the second: the shorter dimension of the
-    camera is parallel with the vector from rectangle vertex 1 to 2.'''
+    from the second: the shorter dimension of the
+    camera is parallel with the vector from rectangle vertex 2 to 1.'''
+
+''' Excellent Reference for checking plan point correctness:
+    http://www.darrinward.com/lat-long/?id=1908337 '''
+
 class latlon:
     n=float()
     w=float()
@@ -15,6 +20,7 @@ class latlon:
         self.n=north
         self.w=west
 
+p0=latlon(38.894583,-92.201788)
 p1=latlon(38.893957,-92.201767)
 p2=latlon(38.893953,-92.201027)
 p3=latlon(38.894567,-92.201008)
@@ -52,11 +58,17 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
               'canon':{'ssizem':5.7, 'ssizep':7.6, 'flen':5.2}}
     v21=sub(p1,p2)
     v23=sub(p3,p2)
-    mainvectorangle=asin(v21.n/mag(v21))
-    if mainvectorangle>0:
-        bearing=90-mainvectorangle
+    vectorAngle=asin(v21.n/mag(v21))*180/pi
+    if v21.n<0:
+        if v21.w<0:
+            bearing=270-abs(vectorAngle)
+        else:
+            bearing=90+abs(vectorAngle)
     else:
-        bearing = 270+abs(mainvectorangle)
+        if v21.w<0:
+            bearing = 270+abs(vectorAngle)
+        else:
+            bearing = 90+abs(vectorAngle)
     mdeg=110574.611
     viewangm=2*atan(camParam[cam]['ssizem']/(2*camParam[cam]['flen']))
     viewangp=2*atan(camParam[cam]['ssizep']/(2*camParam[cam]['flen']))
@@ -87,6 +99,7 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     print (str(position.n)+','+str(position.w), picNum)
 
 
-#rectMission(p6,p5,p4,20, 'pi')
-rectMission(p4,p5,p6,20, 'pi')
+#rectMission(p6,p5,p4,20, 'canon')
+#rectMission(p4,p5,p6,20, 'canon')
 #rectMission(p1,p2,p3,20, 'pi')
+#rectMission(p1,p0,p3,20,'pi')
