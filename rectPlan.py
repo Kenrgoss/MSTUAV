@@ -2,6 +2,7 @@ from math import asin
 from math import tan
 from math import atan
 from math import floor
+from math import ceil
 from math import pi
 
 class latlon:
@@ -81,7 +82,7 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     picNum+=1
     #print (position.n, position.w)
     print (str(position.n)+','+str(position.w))
-    for i in range(0,int(outerlimit)+1):  
+    for i in range(0,int(outerlimit+1)):  
         for k in range(0,int(innerlimit)):
             if i%2==0:
                 position=add(position,innerstep)
