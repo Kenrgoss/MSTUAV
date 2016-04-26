@@ -12,6 +12,19 @@ class latlon:
         self.n=north
         self.w=west
 
+class mission:
+    latitude=float()
+    longitude=float()
+    altitude=float()
+    bearing=float()
+    ordLoc=int()
+    def __init__(self, north, west, height=20, angle=0, number=0):
+        self.latitude=north
+        self.longitude=west
+        self.altitude=height
+        self.bearing=angle
+        self.ordLoc=number
+
 '''p2 must be the vertex between 1 and 3
 The algorithm assumes the orientation
     of the drone is toward the first point
@@ -54,6 +67,7 @@ def mag(p):
     return (p.n*p.n+p.w*p.w)**.5
 
 def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
+    picList=list()
     camParam={'pi':{'ssizem':2.74, 'ssizep':3.76, 'flen':3.6, 'angN' : 0.7272647522337332, 'angW' : 0.9625338617968637},
               'canon':{'ssizem':5.7, 'ssizep':7.6, 'flen':5.2, 'angN' : 1.0027311229353408, 'angW' : 1.2621587749426584},
               'gopro':{'angN':2.792523803, 'angW':2.792523803}}
@@ -80,24 +94,35 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     picNum=0
     position=add(add(p2,sdiv(outerstep,2)),sdiv(innerstep,2))
     picNum+=1
+    picList.append(mission(position.n,position.w,alt,bearing,picNum))
     #print (position.n, position.w)
-    print (str(position.n)+','+str(position.w))
+    #print (str(position.n)+','+str(position.w))
     for i in range(0,int(outerlimit+1)):  
         for k in range(0,int(innerlimit)):
             if i%2==0:
                 position=add(position,innerstep)
-                print (str(position.n)+','+str(position.w))
+                #print (str(position.n)+','+str(position.w))
             else:
                 position=sub(position,innerstep)
-                print (str(position.n)+','+str(position.w))
+                #print (str(position.n)+','+str(position.w))
+
             picNum+=1
+            picList.append(mission(position.n,position.w,alt,bearing,picNum))
         if i!= outerlimit:   
             position=add(position,outerstep)
-            print (str(position.n)+','+str(position.w))
-            picNum+=1 
-    print (str(position.n)+','+str(position.w), picNum)
+            #print (str(position.n)+','+str(position.w))
+            picNum+=1
+            picList.append(mission(position.n,position.w,alt,bearing,picNum))
+    #print (str(position.n)+','+str(position.w), picNum)
+    return picList
 
+missionList=rectMission(f1[0],f1[1],f1[2],20, 'pi')
+#missionList=rectMission(f2[2],f2[3],f2[0],20, 'pi')
 
-#rectMission(f1[0],f1[1],f1[2],20, 'pi')
+for x in missionList:
+    if x!=missionList[-1]:
+        print(x.latitude,x.longitude)
+    else:
+        print(x.latitude,x.longitude,x.bearing,x.ordLoc)
 
-rectMission(f2[2],f2[3],f2[0],20, 'pi')
+    
