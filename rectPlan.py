@@ -68,9 +68,9 @@ def mag(p):
 
 def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     picList=list()
-    camParam={'pi':{'ssizem':2.74, 'ssizep':3.76, 'flen':3.6, 'angN' : 0.7272647522337332, 'angW' : 0.9625338617968637},
-              'canon':{'ssizem':5.7, 'ssizep':7.6, 'flen':5.2, 'angN' : 1.0027311229353408, 'angW' : 1.2621587749426584},
-              'gopro':{'angN':2.792523803, 'angW':2.792523803}}
+    camParam={'pi':{'ssizem':2.74, 'ssizep':3.76, 'flen':3.6, 'angN' : 0.7272647522337332, 'angW' : 0.9625338617968637, 'TangN':.8900036993, 'TangW':1.436087493},
+              'canon':{'ssizem':5.7, 'ssizep':7.6, 'flen':5.2, 'angN' : 1.0027311229353408, 'angW' : 1.2621587749426584, 'TangN':1.566803225, 'TangW':3.1365079},
+              'gopro':{'angN':2.792523803, 'angW':2.792523803, 'TangN':2.3857296493600746, 'TangW':2.3857296493600746}}
     v21=sub(p1,p2)
     v23=sub(p3,p2)
     vectorAngle=atan(v21.n/v21.w)*180/pi
@@ -85,8 +85,8 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
         else:
             bearing = 90-abs(vectorAngle) #quadrant 1
     mdeg=110574.611
-    innerspacing=alt*tan(camParam[cam]['angN'])*(1-imgOvr)/mdeg
-    outerspacing=alt*tan(camParam[cam]['angW'])*(1-imgOvr)/mdeg
+    innerspacing=alt*camParam[cam]['TangN']*(1-imgOvr)/mdeg
+    outerspacing=alt*camParam[cam]['TangW']*(1-imgOvr)/mdeg
     innerstep=smult(sdiv(v21, mag(v21)),innerspacing)
     outerstep=smult(sdiv(v23, mag(v23)),outerspacing)
     innerlimit=round(mag(sub(v21,sdiv(innerstep,2)))/mag(innerstep))
@@ -98,7 +98,7 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     #print (position.n, position.w)
     #print (str(position.n)+','+str(position.w))
     for i in range(0,int(outerlimit+1)):  
-        for k in range(0,int(innerlimit)):
+        for k in range(0,int(innerlimit-1)):
             if i%2==0:
                 position=add(position,innerstep)
                 #print (str(position.n)+','+str(position.w))
@@ -116,13 +116,14 @@ def rectMission(p1, p2, p3, alt, cam, imgOvr=.05):
     #print (str(position.n)+','+str(position.w), picNum)
     return picList
 
-missionList=rectMission(f1[0],f1[1],f1[2],20, 'pi')
-#missionList=rectMission(f2[2],f2[3],f2[0],20, 'pi')
+#missionList=rectMission(f1[0],f1[1],f1[2],20, 'pi')
+#missionList=rectMission(f2[2],f2[3],f2[0],20, 'canon')
+missionList=rectMission(f3[2],f3[3],f3[0],20, 'pi')
 
 for x in missionList:
     if x!=missionList[-1]:
-        print(x.latitude,x.longitude)
+        print(x.latitude,',',x.longitude)
     else:
-        print(x.latitude,x.longitude,x.bearing,x.ordLoc)
+        print(x.latitude,',',x.longitude,x.bearing,x.ordLoc)
 
-    
+
